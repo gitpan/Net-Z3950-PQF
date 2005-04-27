@@ -1,4 +1,4 @@
-# $Id: PQF.pm,v 1.4 2004/12/17 17:12:05 mike Exp $
+# $Id: PQF.pm,v 1.7 2004/12/23 10:24:12 mike Exp $
 
 package Net::Z3950::PQF;
 
@@ -8,7 +8,7 @@ use warnings;
 
 use Net::Z3950::PQF::Node;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 
 =head1 NAME
@@ -115,11 +115,17 @@ sub _parse {
     my $this = shift();
     my($attrset, $attrhash) = @_;
 
+    $this->{text} =~ s/^\s+//;
+
     ###	This rather nasty hack for quoted terms doesn't recognised
     #	backslash-quoted embedded double quotes.
-    $this->{text} =~ s/^\s+//;
     if ($this->{text} =~ s/^"(.*?)"//) {
-	return $this->_term($1, $attrhash);
+	return $this->_leaf('term', $1, $attrhash);
+    }
+
+    # Also recognise multi-word terms enclosed in {curly braces}
+    if ($this->{text} =~ s/^{(.*?)}//) {
+	return $this->_leaf('term', $1, $attrhash);
     }
 
     my $word = $this->_word();
@@ -154,10 +160,13 @@ sub _parse {
     } elsif ($word eq '@prox') {
 	return $this->_error("proximity not yet implemented");
 
+    } elsif ($word eq '@set') {
+	$word = $this->_word();
+	return $this->_leaf('rset', $word, $attrhash);
     }
 
     # It must be a bareword
-    return $this->_term($word, $attrhash);
+    return $this->_leaf('term', $word, $attrhash);
 }
 
 
@@ -182,9 +191,9 @@ sub _error {
 
 
 # PRIVATE to _parse();
-sub _term {
+sub _leaf {
     my $this = shift();
-    my($word, $attrhash) = @_;
+    my($type, $word, $attrhash) = @_;
 
     my @attrs;
     foreach my $key (sort keys %$attrhash) {
@@ -192,7 +201,13 @@ sub _term {
 	push @attrs, [ $attrset, $type, $attrhash->{$key} ];
     }
 
-    return new Net::Z3950::PQF::TermNode($word, @attrs);
+    if ($type eq 'term') {
+	return new Net::Z3950::PQF::TermNode($word, @attrs);
+    } elsif ($type eq 'rset') {
+	return new Net::Z3950::PQF::RsetNode($word, @attrs);
+    } else {
+	die "_leaf() called with type='$type' (should be 'term' or 'rset')";
+    }
 }
 
 

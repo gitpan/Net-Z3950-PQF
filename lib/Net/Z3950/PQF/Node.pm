@@ -1,4 +1,4 @@
-# $Id: Node.pm,v 1.1 2004/12/17 15:29:00 mike Exp $
+# $Id: Node.pm,v 1.3 2004/12/20 09:46:58 mike Exp $
 
 package Net::Z3950::PQF::Node;
 
@@ -12,7 +12,7 @@ Net::Z3950::PQF::Node - Abstract class for nodes in a PQF parse tree
 
 =head1 SYNOPSIS
 
- $node = new Net::Z3950::PQF::Term('unix');
+ $node = new Net::Z3950::PQF::TermNode('unix');
  $node->isa("Net::Z3950::PQF::Node") or die "oops";
 
 =head1 DESCRIPTION
@@ -47,6 +47,12 @@ I<type>,
 and a
 I<value>
 which may be either an integer or a string.
+
+=item C<RsetNode>
+
+Represents a result-set node, a reference to the name of a prior
+result set.  The result-set name is accompanied by zero or more
+attributes as above.
 
 =item C<AndNode>
 
@@ -152,14 +158,16 @@ sub render {
 
 
 
-package Net::Z3950::PQF::TermNode;
+# PRIVATE base class, used as base by TermNode and RsetNode
+package Net::Z3950::PQF::LeafNode;
+our @ISA = qw(Net::Z3950::PQF::Node);
 
 sub new {
     my $class = shift();
-    my($term, @attrs) = @_;
+    my($value, @attrs) = @_;
 
     return bless {
-	term => $term,
+	value => $value,
 	attrs => [ @attrs ],
     }, $class;
 }
@@ -169,7 +177,7 @@ sub render {
     my($level) = @_;
 
     die "render() called with no level" if !defined $level;
-    my $text = ("\t" x $level) . "term: " . $this->{term} . "\n";
+    my $text = ("\t" x $level) . $this->_name() . ": " . $this->{value} . "\n";
     foreach my $attr (@{ $this->{attrs} }) {
 	my($set, $type, $val) = @$attr;
 	$text .= ("\t" x ($level+1)) . "attr: $set $type=$val\n";
@@ -180,8 +188,23 @@ sub render {
 
 
 
+package Net::Z3950::PQF::TermNode;
+our @ISA = qw(Net::Z3950::PQF::LeafNode);
+
+sub _name { "term" }
+
+
+
+package Net::Z3950::PQF::RsetNode;
+our @ISA = qw(Net::Z3950::PQF::LeafNode);
+
+sub _name { "rset" }
+
+
+
 # PRIVATE class, used as base by AndNode, OrNode and NotNode
 package Net::Z3950::PQF::BooleanNode;
+our @ISA = qw(Net::Z3950::PQF::Node);
 
 sub new {
     my $class = shift();
@@ -208,24 +231,21 @@ sub render {
 
 
 package Net::Z3950::PQF::AndNode;
-use vars qw(@ISA);
-@ISA = qw(Net::Z3950::PQF::BooleanNode);
+our @ISA = qw(Net::Z3950::PQF::BooleanNode);
 
 sub _op { "and" }
 
 
 
 package Net::Z3950::PQF::OrNode;
-use vars qw(@ISA);
-@ISA = qw(Net::Z3950::PQF::BooleanNode);
+our @ISA = qw(Net::Z3950::PQF::BooleanNode);
 
 sub _op { "or" }
 
 
 
 package Net::Z3950::PQF::NotNode;
-use vars qw(@ISA);
-@ISA = qw(Net::Z3950::PQF::BooleanNode);
+our @ISA = qw(Net::Z3950::PQF::BooleanNode);
 
 sub _op { "not" }
 
