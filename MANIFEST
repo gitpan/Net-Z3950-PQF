@@ -1,10 +1,6 @@
 Changes
-MANIFEST
-MANIFEST.SKIP
 Makefile.PL
+MANIFEST
+PQF.pm
 README
-lib/Net/Z3950/PQF.pm
-lib/Net/Z3950/PQF/Node.pm
-t/1-node.t
-t/2-parser.t
-META.yml                                 Module meta-data (added by MakeMaker)
+t/1.t

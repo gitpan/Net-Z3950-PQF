@@ -1,43 +1,38 @@
-$Id: README,v 1.2 2004/12/17 17:16:46 mike Exp $
+Net/Z3950/PQF version 0.01
+==========================
 
+The README is used to introduce the module and provide instructions on
+how to install the module, any machine dependencies it may have (for
+example C compilers and installed libraries) and any other information
+that should be provided before the module is installed.
 
-Net::Z3950::PQF
-===============
+A README file is required for CPAN modules since CPAN extracts the
+README file from a module distribution so that people browsing the
+archive can use it get an idea of the modules uses. It is usually a
+good idea to provide version information here so that people can
+decide whether fixes for the module are worth downloading.
 
-This library provides a parser for PQF (Prefix Query Format), an ugly
-but precise string format for expressing Z39.50 Type-1 queries. This
-format is widely used behind the scenes of Z39.50 applications, and is
-also used extensively with test-harness programs such as the YAZ
-command-line client, yaz-client.
-
-
-Installation
-------------
+INSTALLATION
 
 To install this module type the following:
 
-	perl Makefile.PL
-	make
-	make test
-	make install
+   perl Makefile.PL
+   make
+   make test
+   make install
 
-
-Dependencies
-------------
+DEPENDENCIES
 
 This module requires these other modules and libraries:
 
-	[None!]
+  blah blah blah
 
+COPYRIGHT AND LICENCE
 
-Copyright and Licence
----------------------
+Put the correct copyright and licence information here.
 
-Written by Mike Taylor <mike@indexdata.com>
-
-Copyright (C) 2004 by Index Data ApS.
+Copyright (C) 2004 Mike Taylor
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself. 
-
 
